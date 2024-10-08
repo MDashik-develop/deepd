@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Suggestion Example</title>
+    <style>
+        /* Style for the search input */
+        .search-container {
+            position: relative;
+            width: 300px;
+            margin: 0 auto;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        /* Style for suggestion box */
+        .suggestion-box {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            display: none; /* Hide initially */
+            z-index: 1;
+        }
+
+        .suggestion-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .suggestion-box li {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .suggestion-box li:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <input type="text" id="search" placeholder="Search...">
+        <div class="suggestion-box" id="suggestion-box">
+            <ul></ul>
+        </div>
+    </div>
+<script>
+const searchInput = document.getElementById('search');
+const suggestionBox = document.getElementById('suggestion-box');
+const suggestionsList = document.querySelector('.suggestion-box ul');
+let currentIndex = -1;
+
+const suggestions = ['JavaScript', 'Java', 'Python', 'PHP', 'C++', 'C#', 'HTML', 'CSS', 'React', 'Angular', 'Vue.js'];
+
+searchInput.addEventListener('input', e => {
+    const query = e.target.value.toLowerCase();
+    suggestionsList.innerHTML = '';
+    currentIndex = -1; // Reset index when user types again
+    if (query) {
+        const filtered = suggestions.filter(item => item.toLowerCase().includes(query));
+        suggestionBox.style.display = filtered.length ? 'block' : 'none';
+        filtered.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            li.onclick = () => {
+                searchInput.value = item;
+                suggestionBox.style.display = 'none';
+                submitForm(); // Form submit function call
+            };
+            suggestionsList.appendChild(li);
+        });
+    } else {
+        suggestionBox.style.display = 'none';
+    }
+});
+
+// Keyboard navigation for suggestions
+searchInput.addEventListener('keydown', e => {
+    const allSuggestions = suggestionsList.querySelectorAll('li');
+    if (e.key === 'ArrowDown') {
+        currentIndex = (currentIndex + 1) % allSuggestions.length;
+        updateSuggestionSelection(allSuggestions);
+    } else if (e.key === 'ArrowUp') {
+        currentIndex = (currentIndex - 1 + allSuggestions.length) % allSuggestions.length;
+        updateSuggestionSelection(allSuggestions);
+    } else if (e.key === 'Enter') {
+        if (currentIndex > -1 && allSuggestions[currentIndex]) {
+            searchInput.value = allSuggestions[currentIndex].textContent;
+            suggestionBox.style.display = 'none';
+            submitForm(); // Form submit function call
+        }
+    }
+});
+
+// Click outside to close the sidebar
+document.addEventListener('click', e => {
+    if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+        suggestionBox.style.display = 'none';
+    }
+});
+
+// Helper function to update suggestion selection
+function updateSuggestionSelection(allSuggestions) {
+    allSuggestions.forEach((li, index) => {
+        if (index === currentIndex) {
+            li.classList.add('active');
+            searchInput.value = li.textContent;
+        } else {
+            li.classList.remove('active');
+        }
+    });
+}
+
+// Form submit function (you need to implement this)
+function submitForm() {
+    console.log('Form submitted with value:', searchInput.value);
+    // Add your form submission logic here (e.g., form.submit())
+}
+
+</script>
+</body>
+</html>
